@@ -58,25 +58,23 @@ def majorityCnt(classList):
         if vote not in classCount.keys():
             classCount[vote] = 0
         classCount[vote] += 1
-    sortedClassCount = sorted(classCount.iteritems(),
-                            key = operator.itemgetter(1),
-                            reverse = True)
+    sortedClassCount = sorted(classCount.iteritems(), key=operator.itemgetter(1), reverse=True)
     return sortedClassCount[0][0]
 
 def createTree(dataSet, labels):
-    classList = [example[-1] for example in dataSet]
-    if classList.count(classList[0]) == len(classList):
+    classList = [example[-1] for example in dataSet]            #数据集的所有分类标签
+    if classList.count(classList[0]) == len(classList):         #递归停止的第一个条件：所有的类标签完全相同
         return classList[0]
-        if len(dataSet[0]) == 1:
-            return majorityCnt(classList)
+        if len(dataSet[0]) == 1:                                #第二个停止条件是使用完了所有特征，仍不能将数据集划分为仅包含唯一类别的分组
+            return majorityCnt(classList)                       #挑选出现次数最多的类别作为返回值
         bestFeat = chooseBestFeatureToSplit(dataSet)
+        print(bestFeat)
         bestFeatLabel = labels[bestFeat]
-        myTree = {bestFeatLabel: {}}
+        myTree = {bestFeatLabel: {}}                            #树的所有信息存储在字典中
         del(labels[bestFeat])
         featValues = [example[bestFeat] for example in dataSet]
         uniqueVals = set(featValues)
         for value in uniqueVals:
-            subLabels = labels[:]
-            myTree[bestFeatLabel][value] = createTree(splitDataSet(dataSet, bestFeat, value), subLabels)
+            subLabels = labels[:]                               #为了每次调用createTree()时不改变原始列表内容，要复制一个代替原始列表
+            myTree[bestFeatLabel][value] = createTree(splitDataSet(dataSet, bestFeat, value), subLabels)    #每个数据集划分上递归调用，终止时字典中会嵌套很多代表叶子节点信息的字典数据
         return myTree
-    
