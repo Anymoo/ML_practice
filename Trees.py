@@ -25,6 +25,7 @@ def createDataSet():
     labels = ['no surfacing', 'flippers']
     return dataSet, labels
 
+
 def splitDataSet(dataSet, axis, value):                 #划分数据集
     retDataSet = []                                     #创建新的list，保护原始数据集
     for featVec in dataSet:                             #遍历dataSet
@@ -33,6 +34,7 @@ def splitDataSet(dataSet, axis, value):                 #划分数据集
             reducedFeatVec.extend(featVec[axis+1:])     #extend 将参数的所有元素加到list
             retDataSet.append(reducedFeatVec)           #append 将参数作为一个元素加到list
     return retDataSet
+
 
 def chooseBestFeatureToSplit(dataSet):
     numFeatures = len(dataSet[0]) - 1
@@ -52,6 +54,7 @@ def chooseBestFeatureToSplit(dataSet):
             bestFeatures = i
         return bestFeatures
 
+
 def majorityCnt(classList):
     classCount = {}
     for vote in classList:
@@ -60,6 +63,7 @@ def majorityCnt(classList):
         classCount[vote] += 1
     sortedClassCount = sorted(classCount.iteritems(), key=operator.itemgetter(1), reverse=True)
     return sortedClassCount[0][0]
+
 
 def createTree(dataSet, labels):
     classList = [example[-1] for example in dataSet]            #数据集的所有分类标签
