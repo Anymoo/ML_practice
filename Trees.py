@@ -13,8 +13,9 @@ def calcShannonEnt(dataSet):
     shannonEnt = 0.0
     for key in labelCounts:
         prob = float(labelCounts[key])/numEntries       #计算概率
-        shannonEnt -= prob * log(prob,2)                #香农熵计算公式
+        shannonEnt -= prob * log(prob, 2)                #香农熵计算公式
     return shannonEnt
+
 
 def createDataSet():
     dataSet = [[1, 1, 'yes'],
@@ -66,18 +67,45 @@ def majorityCnt(classList):
 
 
 def createTree(dataSet, labels):
-    classList = [example[-1] for example in dataSet]            #数据集的所有分类标签
-    if classList.count(classList[0]) == len(classList):         #递归停止的第一个条件：所有的类标签完全相同
+    classList = [example[-1] for example in dataSet]            # 数据集的所有分类标签
+    if classList.count(classList[0]) == len(classList):         # 递归停止的第一个条件：所有的类标签完全相同
         return classList[0]
-    if len(dataSet[0]) == 1:                                #第二个停止条件是使用完了所有特征，仍不能将数据集划分为仅包含唯一类别的分组
-        return majorityCnt(classList)                       #挑选出现次数最多的类别作为返回值
+    if len(dataSet[0]) == 1:                                # 第二个停止条件是使用完了所有特征，仍不能将数据集划分为仅包含唯一类别的分组
+        return majorityCnt(classList)                       # 挑选出现次数最多的类别作为返回值
     bestFeat = chooseBestFeatureToSplit(dataSet)
     bestFeatLabel = labels[bestFeat]
-    myTree = {bestFeatLabel:{}}                            #树的所有信息存储在字典中
+    myTree = {bestFeatLabel:{}}                            # 树的所有信息存储在字典中
     del(labels[bestFeat])
     featValues = [example[bestFeat] for example in dataSet]
     uniqueVals = set(featValues)
     for value in uniqueVals:
-        subLabels = labels[:]                               #为了每次调用createTree()时不改变原始列表内容，要复制一个代替原始列表
+        subLabels = labels[:]                               # 为了每次调用createTree()时不改变原始列表内容，要复制一个代替原始列表
         myTree[bestFeatLabel][value] = createTree(splitDataSet(dataSet, bestFeat, value), subLabels)    #每个数据集划分上递归调用，终止时字典中会嵌套很多代表叶子节点信息的字典数据
     return myTree
+
+
+def classify(inputTree, featLabels, testVec):
+    firstStr = inputTree.keys()[0]
+    secondDict = inputTree[firstStr]
+    featIndex = featLabels.index(firstStr)
+    for key in secondDict.keys():
+        if testVec[featIndex] == key:
+            if type(secondDict[key]).__name__ == 'dict':
+                classLabel = classify(secondDict[key], featLabels, testVec)
+            else:
+                classLabel = secondDict[key]
+    return classLabel
+
+
+def storetree(inputTree, filename):                     # 存储到文件，而不用每次重新学习一遍
+    import pickle
+    fw = open(filename, 'w')
+    pickle.dump(inputTree, fw)
+    fw.close()
+
+
+def grabtree(filename):
+    import pickle
+    fr = open(filename)
+    return pickle.load(fr)
+
